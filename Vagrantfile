@@ -9,7 +9,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_url = "https://dl.dropboxusercontent.com/s/ohazhdin4nibmx9/fedora-20-x86_64.box"
 
   config.vm.hostname = "dev.example.com"
-  #config.vm.network :forwarded_port, guest: 80, host: 8888
 
   config.vm.network :private_network, ip: "10.10.10.10"
 
@@ -28,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       puppet.manifests_path    = "puppet/manifests"
       puppet.module_path       = "puppet/modules"
       puppet.manifest_file     = "site.pp"
-      puppet.options           = "--verbose --debug --hiera_config /vagrant/puppet/hiera.yaml"
+      puppet.options           = "--verbose --hiera_config /vagrant/puppet/hiera.yaml"
   
       puppet.facter = {
         "environment"     => "development",

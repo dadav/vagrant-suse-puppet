@@ -1,12 +1,13 @@
 #
 node default {
-  include os
-  include java
-  include mysql
+  include my_os
+  include my_mysql
+  include my_tomcat
+  include my_apache
 }  
 
 # operating settings for Middleware
-class os {
+class my_os {
 
   host{'localhost':
     ip           => "127.0.0.1",
@@ -43,7 +44,7 @@ class os {
     require    => Group['dba'],
   }
 
-  $install = [ 'binutils.x86_64','unzip.x86_64','wget']
+  $install = [ 'binutils.x86_64','unzip.x86_64','wget','java-1.7.0-openjdk.x86_64']
 
   package { $install:
     ensure  => present,
@@ -61,23 +62,8 @@ class os {
 
 }
 
-class java {
-  require os
-
-  $remove = [ "java-1.7.0-openjdk.x86_64", "java-1.6.0-openjdk.x86_64" ]
-
-  package { $remove:
-    ensure  => absent,
-  }
-
-  class { 'jdk_oracle': 
-    version => "8",
-    require => Package[$remove],
-  }
-}
-
-class postgresql {
-  require os
+class my_postgresql {
+  require my_os
 
   class { 'postgresql::server':
     ip_mask_allow_all_users    => '0.0.0.0/0',
@@ -102,8 +88,8 @@ class postgresql {
 
 }
 
-class mysql {
-  require os
+class my_mysql {
+  require my_os
 
   # SELECT PASSWORD('petshop')
   class { '::mysql::server':
@@ -111,6 +97,7 @@ class mysql {
     override_options => { 
           'mysqld' => { 
             'max_connections'   => '1024' ,
+            'bind-address'      => '10.10.10.10',
           } 
       },
     users            => { 'petshop@%'      => {
@@ -135,5 +122,61 @@ class mysql {
   }
 }  
 
+class my_tomcat {
+  require my_os
 
+  Exec {
+    path => '/usr/bin:/usr/sbin/:/bin:/sbin:/usr/local/bin:/usr/local/sbin',
+  }
+
+  Class['jdk_oracle'] -> Class['tomcat']
+
+  class { 'jdk_oracle': 
+    version => "8",
+  }
+
+  class { 'tomcat':
+    version     => 7,
+    sources     => true,
+  }
+
+  tomcat::instance {'petshop':
+    ensure      => present,
+    server_port => '8005',
+    http_port   => '8080',
+    ajp_port    => '8009',
+    java_home   => '/opt/jdk1.8.0_05',
+  }
+
+  file{'/srv/tomcat/petshop/webapps/sample.war':
+    ensure  => present,
+    source  => '/vagrant/sample.war',   
+    mode    => '0664',
+    require => Tomcat::Instance['petshop'],
+  }
+
+}
+
+class my_apache {
+  require my_tomcat
+
+  class { 'apache':
+    default_mods        => true,
+    default_confd_files => true,
+  }
+
+  apache::mod { 'proxy_ajp': }
+
+  apache::vhost { 'dev.example.com':
+    vhost_name       => '*',
+    port             => '81',
+    docroot          => '/var/www/petshop',
+    proxy_pass => [
+      { 'path' => '/petshop', 'url' => 'ajp://10.10.10.10:8009' },
+    ],
+  }
+
+    
+
+}
 
