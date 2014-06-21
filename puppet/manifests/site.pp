@@ -2,8 +2,11 @@
 node default {
   include my_os
   include my_mysql
-  include my_tomcat
-  include my_apache
+  include my_java
+#  include my_postgresql
+#  include my_tomcat
+  include my_wildfly
+#  include my_apache
 }  
 
 # operating settings for Middleware
@@ -27,23 +30,6 @@ class my_os {
         hasstatus => true,
   }
 
-  group { 'dba' :
-    ensure => present,
-  }
-
-  # http://raftaman.net/?p=1311 for generating password
-  # password = oracle
-  user { 'dev' :
-    ensure     => present,
-    groups     => 'dba',
-    shell      => '/bin/bash',
-    password   => '$1$JWbdEnvW$rrWeR8H1DIuZsXp4f776H0',
-    home       => "/home/wls",
-    comment    => 'dev user created by Puppet',
-    managehome => true,
-    require    => Group['dba'],
-  }
-
   $install = [ 'binutils.x86_64','unzip.x86_64','wget','java-1.7.0-openjdk.x86_64']
 
   package { $install:
@@ -59,6 +45,15 @@ class my_os {
     before      => Package['mysql-community-server'],
   }
 
+
+}
+
+class my_java {
+  require my_os
+
+  class { 'jdk_oracle': 
+    version => "8",
+  }
 
 }
 
@@ -129,12 +124,6 @@ class my_tomcat {
     path => '/usr/bin:/usr/sbin/:/bin:/sbin:/usr/local/bin:/usr/local/sbin',
   }
 
-  Class['jdk_oracle'] -> Class['tomcat']
-
-  class { 'jdk_oracle': 
-    version => "8",
-  }
-
   class { 'tomcat':
     version     => 7,
     sources     => true,
@@ -157,6 +146,18 @@ class my_tomcat {
 
 }
 
+class my_wildfly{
+  require my_os
+
+  class { 'wildfly':
+    version        => '8.1.0',
+    install_source => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
+    install_file   => 'wildfly-8.1.0.Final.tar.gz',
+    java_home      => '/opt/jdk-8',
+  }
+
+}
+
 class my_apache {
   require my_tomcat
 
@@ -175,8 +176,5 @@ class my_apache {
       { 'path' => '/petshop', 'url' => 'ajp://10.10.10.10:8009' },
     ],
   }
-
-    
-
 }
 
