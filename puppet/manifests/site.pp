@@ -149,7 +149,7 @@ class my_tomcat {
 class my_wildfly{
   require my_os
 
-  class { 'wildfly':
+  class { 'wildfly::install':
     version        => '8.1.0',
     install_source => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
     install_file   => 'wildfly-8.1.0.Final.tar.gz',
