@@ -1,19 +1,21 @@
 {
   "author": "Edwin Biemond",
   "checksums": {
+    "Rakefile": "ac8049b75e27b40d47d3ecc48ee36a1c",
     "Gemfile": "76d0dbef618c4710acabc53e94fe3e3c",
-    "manifests/install.pp": "d72b532dcf392c7ebdfc1092186c65c1",
-    "README": "47028b25d29d921ee5225f71b0b91a7b",
-    "Modulefile": "d980c5d4322dea8a72990c08e9dd6fe2",
+    "manifests/install.pp": "4f895dc6e58e6ad75c162b4a64c5270e",
+    "Modulefile": "2eeeefa7f6b49b429b340ad109e63687",
     ".travis.yml": "6a2d67943b7b13baefae21bcced9f677",
-    "templates/wildfly-init-redhat.sh.erb": "c66f64b1fb49a798574193bc8226e916",
-    "spec/spec_helper.rb": "a55d1e6483344f8ec6963fcb2c220372",
+    "templates/wildfly-init-redhat.sh.erb": "acc789866b386c69807a0b17341667d9",
+    "spec/spec.opts": "a600ded995d948e393fbe2320ba8e51c",
+    "spec/spec_helper.rb": "33e15d1250229a0b2b5aabd121ed73d4",
     ".fixtures.yml": "ab18829c01b0300ae4def780e625cd85",
     "manifests/params.pp": "6d42966546e586df3e937e8ed71d0a80",
     "manifests/init.pp": "fa120499bc19fe9112834df5acd4df4b",
     "templates/wildfly.conf.erb": "126afee131deeff33b1867e251a67216",
     "templates/wildfly-init-debian.sh.erb": "fc14c20a9802c50ded67867d60628492",
-    ".pydevproject": "672bd9110588bad7c7fa27ccb50f7c33"
+    ".pydevproject": "672bd9110588bad7c7fa27ccb50f7c33",
+    "README.md": "47028b25d29d921ee5225f71b0b91a7b"
   },
   "dependencies": [],
   "description": "downloads, installs and configures jboss wildfly 8.X",
@@ -23,5 +25,5 @@
   "source": "https://github.com/biemond/biemond-wildfly",
   "summary": "JBoss Wildfly puppet module",
   "types": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
