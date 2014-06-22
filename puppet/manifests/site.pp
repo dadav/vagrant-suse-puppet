@@ -6,7 +6,7 @@ node default {
 #  include my_postgresql
 #  include my_tomcat
   include my_wildfly
-#  include my_apache
+  include my_apache
 }  
 
 # operating settings for Middleware
@@ -149,17 +149,38 @@ class my_tomcat {
 class my_wildfly{
   require my_os
 
+  # class { 'wildfly::install':
+  #   version        => '8.1.0',
+  #   install_source => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
+  #   install_file   => 'wildfly-8.1.0.Final.tar.gz',
+  #   java_home      => '/opt/jdk-8',
+  # }
+
   class { 'wildfly::install':
-    version        => '8.1.0',
-    install_source => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
-    install_file   => 'wildfly-8.1.0.Final.tar.gz',
-    java_home      => '/opt/jdk-8',
+    version           => '8.1.0',
+    install_source    => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
+    install_file      => 'wildfly-8.1.0.Final.tar.gz',
+    java_home         => '/opt/jdk-8',
+    group             => 'wildfly',
+    user              => 'wildfly',
+    dirname           => '/opt/wildfly',
+    mode              => 'standalone',
+    config            => 'standalone-full.xml',
+    java_xmx          => '512m',
+    java_xms          => '256m',
+    java_maxpermsize  => '256m',
+    mgmt_http_port    => '9990',
+    mgmt_https_port   => '9993',
+    public_http_port  => '8080',
+    public_https_port => '8443',
+    ajp_port          => '8009',
+    users_mgmt        => { 'wildfly' => { username => 'wildfly', password => '2c6368f4996288fcc621c5355d3e39b7'}},
   }
 
 }
 
 class my_apache {
-  require my_tomcat
+  require my_os
 
   class { 'apache':
     default_mods        => true,

@@ -21,3 +21,16 @@ user petshop, password petsop
 
 
 
+
+# rspect
+
+sudo gem install bundler
+sudo yum -y install gcc ruby-devel rubygems libxml2 libxslt-devel
+
+cd /etc/puppet/modules/wildfly/
+
+bundle install --without development
+
+bundle exec rake spec
+bundle exec rake syntax
+bundle exec rake lint
