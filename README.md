@@ -8,29 +8,26 @@
 ###sample app
 http://10.10.10.10:8080/sample/
 
+##wildfly 8.1.0 on JDK1.8.05
+
+###management app
+http://10.10.10.10:9990
+
+user wildfly password wildfly
+
+###sample app
+http://10.10.10.10:8080/sample/
+
 ##apache with AJP
-http://10.10.10.10:81/pethsop/sample/
+http://10.10.10.10:81/petshop/sample/
 
 ##MySQL petshop database
-10.10.10.10 3306
-
-user root, password password 
+10.10.10.10 3306 user root, password password 
 
 ### petshop
-user petshop, password petsop
+user petshop, password petshop
 
+##postgresql petshop database
 
-
-
-# rspect
-
-sudo gem install bundler
-sudo yum -y install gcc ruby-devel rubygems libxml2 libxslt-devel
-
-cd /etc/puppet/modules/wildfly/
-
-bundle install --without development
-
-bundle exec rake spec
-bundle exec rake syntax
-bundle exec rake lint
+### petshop
+10.10.10.10 5432 user petshop or postgres with password as password

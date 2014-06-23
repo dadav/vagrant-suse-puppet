@@ -81,6 +81,13 @@ class my_postgresql {
     role      => 'managers',
   }
 
+  postgresql::validate_db_connection { 'validate my postgres connection':
+    database_host           => '10.10.10.10',
+    database_username       => 'petshop',
+    database_password       => 'password',
+    database_name           => 'petshop',
+  }
+
 }
 
 class my_mysql {
