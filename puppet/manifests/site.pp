@@ -86,6 +86,7 @@ class my_postgresql {
     database_username       => 'petshop',
     database_password       => 'password',
     database_name           => 'petshop',
+    require                 => Postgresql::Server::Db['petshop']
   }
 
 }
@@ -125,7 +126,7 @@ class my_mysql {
 }  
 
 class my_tomcat {
-  require my_os
+  require my_os,my_java
 
   Exec {
     path => '/usr/bin:/usr/sbin/:/bin:/sbin:/usr/local/bin:/usr/local/sbin',
@@ -154,7 +155,7 @@ class my_tomcat {
 }
 
 class my_wildfly{
-  require my_os
+  require my_os,my_java
 
   # class { 'wildfly::install':
   #   version        => '8.1.0',
