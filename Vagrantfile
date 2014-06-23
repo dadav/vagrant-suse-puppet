@@ -9,9 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_url = "https://dl.dropboxusercontent.com/s/ohazhdin4nibmx9/fedora-20-x86_64.box"
 
   config.vm.hostname = "dev.example.com"
-
   config.vm.network :private_network, ip: "10.10.10.10"
-
 
   config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=777"]
   
@@ -20,8 +18,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--name"  , "dev"]
     #vb.gui = true
   end
-
-  config.vm.provision :shell, :inline => "ln -sf /vagrant/puppet/hiera.yaml /etc/puppet/hiera.yaml;rm -rf /etc/puppet/modules;ln -sf /vagrant/puppet/modules /etc/puppet/modules"
 
   config.vm.provision :puppet do |puppet|
       puppet.manifests_path    = "puppet/manifests"

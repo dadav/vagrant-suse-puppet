@@ -3,7 +3,7 @@ node default {
   include my_os
   include my_mysql
   include my_java
-#  include my_postgresql
+  include my_postgresql
 #  include my_tomcat
   include my_wildfly
   include my_apache
@@ -175,6 +175,13 @@ class my_wildfly{
     public_https_port => '8443',
     ajp_port          => '8009',
     users_mgmt        => { 'wildfly' => { username => 'wildfly', password => '2c6368f4996288fcc621c5355d3e39b7'}},
+  }
+
+  file{'/opt/wildfly/standalone/deployments/sample.war':
+    ensure  => present,
+    source  => '/vagrant/sample.war',   
+    mode    => '0664',
+    require => Class['wildfly::install'],
   }
 
 }
