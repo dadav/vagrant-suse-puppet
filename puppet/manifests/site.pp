@@ -36,15 +36,6 @@ class my_os {
     ensure  => present,
   }
 
-  yumrepo { "mysql-repo":
-    baseurl  => "http://repo.mysql.com/yum/mysql-5.6-community/fc/20/x86_64/",
-    descr    => "My mysql Repo",
-    enabled  => 1,
-    gpgcheck => 0,
-    priority => 1,
-    before      => Package['mysql-community-server'],
-  }
-
 
 }
 
@@ -94,6 +85,16 @@ class my_postgresql {
 class my_mysql {
   require my_os
 
+  yumrepo { "mysql-repo":
+    baseurl  => "http://repo.mysql.com/yum/mysql-5.6-community/fc/20/x86_64/",
+    descr    => "My mysql Repo",
+    enabled  => 1,
+    gpgcheck => 0,
+    priority => 1,
+    before   => Class['::mysql::server'],
+  }
+
+
   # SELECT PASSWORD('petshop')
   class { '::mysql::server':
     root_password    => 'password',
@@ -108,7 +109,7 @@ class my_mysql {
                             password_hash  => '*8C4212B9269BA7797285063D0359C0C41311E472',
                            },  
                         },   
-    grants           => { 'petshop@%'  => {
+    grants           => { 'petshop@%/petshop.*'  => {
                             ensure     => 'present',
                             options    => ['GRANT'],
                             privileges => ['DROP','ALTER','SELECT', 'INSERT', 'UPDATE', 'DELETE'],

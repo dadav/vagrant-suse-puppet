@@ -31,3 +31,14 @@ user petshop, password petshop
 
 ### petshop
 10.10.10.10 5432 user petshop or postgres with password as password
+
+
+Changes to mysql module
+
+Line 29,30 params.pp
+
+  case $::osfamily {
+    'RedHat': {
+      if $::operatingsystem == 'Fedora' and (is_integer($::operatingsystemrelease) and $::operatingsystemrelease >= 19 or $::operatingsystemrelease == "Rawhide") {
+        $client_package_name = 'mysql'
+        $server_package_name = 'mysql-community-server'
