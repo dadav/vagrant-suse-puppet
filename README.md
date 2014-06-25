@@ -42,3 +42,12 @@ Line 29,30 params.pp
       if $::operatingsystem == 'Fedora' and (is_integer($::operatingsystemrelease) and $::operatingsystemrelease >= 19 or $::operatingsystemrelease == "Rawhide") {
         $client_package_name = 'mysql'
         $server_package_name = 'mysql-community-server'
+
+Changes to jdk_oracle module
+
+Line 50,51 init.pp
+
+    case $version {
+        '8': {
+            $javaDownloadURI = "http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-${plat_filename}.tar.gz"
+            $java_home = "${install_dir}/jdk1.8.0_05"
