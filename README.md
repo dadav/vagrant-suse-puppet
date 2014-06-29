@@ -35,13 +35,7 @@ user petshop, password petshop
 
 Changes to mysql module
 
-Line 29,30 params.pp
-
-  case $::osfamily {
-    'RedHat': {
-      if $::operatingsystem == 'Fedora' and (is_integer($::operatingsystemrelease) and $::operatingsystemrelease >= 19 or $::operatingsystemrelease == "Rawhide") {
-        $client_package_name = 'mysql'
-        $server_package_name = 'mysql-community-server'
+check out https://github.com/puppetlabs/puppetlabs-mysql/tree/2.3.x and not the default mysql module, this is not compatiable with fedora and mariadb 
 
 Changes to jdk_oracle module
 

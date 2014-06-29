@@ -85,16 +85,6 @@ class my_postgresql {
 class my_mysql {
   require my_os
 
-  yumrepo { "mysql-repo":
-    baseurl  => "http://repo.mysql.com/yum/mysql-5.6-community/fc/20/x86_64/",
-    descr    => "My mysql Repo",
-    enabled  => 1,
-    gpgcheck => 0,
-    priority => 1,
-    before   => Class['::mysql::server'],
-  }
-
-
   # SELECT PASSWORD('petshop')
   class { '::mysql::server':
     root_password    => 'password',
