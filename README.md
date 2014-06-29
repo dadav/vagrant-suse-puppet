@@ -33,11 +33,13 @@ user petshop, password petshop
 10.10.10.10 5432 user petshop or postgres with password as password
 
 
-Changes to mysql module
+##Changes
 
-check out https://github.com/puppetlabs/puppetlabs-mysql/tree/2.3.x and not the default mysql module, this is not compatiable with fedora and mariadb 
+###Changes to mysql module
 
-Changes to jdk_oracle module
+check out https://github.com/puppetlabs/puppetlabs-mysql/tree/2.3.x and not the default mysql enterprise module, this is not compatiable with fedora and mariadb 
+
+###Changes to jdk_oracle module
 
 Line 50,51 init.pp
 
