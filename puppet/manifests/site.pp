@@ -1,15 +1,14 @@
-#
+
 node default {
   include my_os
   include my_mysql
-  include my_java
   include my_postgresql
-#  include my_tomcat
-  include my_wildfly
   include my_apache
+  include my_java
+  include my_wildfly
 }  
 
-# operating settings for Middleware
+# Operating Sytem settings
 class my_os {
 
   host{'localhost':
@@ -18,26 +17,82 @@ class my_os {
                      'localhost4',
                      'localhost4.localdomain4'],
   }
-
   host{'dev.example.com':
     ip           => "10.10.10.10",
     host_aliases => 'dev',
   }
 
   service { iptables:
-        enable    => false,
-        ensure    => false,
-        hasstatus => true,
+    enable    => false,
+    ensure    => false,
+    hasstatus => true,
   }
 
-  $install = [ 'binutils.x86_64','unzip.x86_64','wget','java-1.7.0-openjdk.x86_64']
+  $install = ['binutils.x86_64','unzip.x86_64',
+              'wget','java-1.7.0-openjdk.x86_64']
 
   package { $install:
     ensure  => present,
   }
-
-
 }
+
+
+class my_mysql {
+  require my_os
+
+  class { '::mysql::server':
+    root_password    => 'password',
+    override_options => { 
+      'mysqld' => { 
+        'max_connections' => '1024' ,
+        'bind-address'    => '10.10.10.10',
+      } 
+     },
+    users => { 
+      'petshop@%' => {
+         ensure        => 'present',
+         password_hash => '*8C4212B9269BA7797285063D0359C0C41311E472',
+       },  
+     },   
+    grants => { 
+      'petshop@%/petshop.*'  => {
+        ensure     => 'present',
+        options    => ['GRANT'],
+        privileges => ['DROP','ALTER','SELECT', 'INSERT', 'UPDATE', 'DELETE'],
+        table      => 'petshop.*',
+        user       => 'petshop@%',
+      },
+     },  
+    databases => { 
+      'petshop' => {
+        ensure  => 'present',
+        charset => 'utf8',
+      },
+     },  
+    service_enabled => true,  
+  }
+}  
+
+class my_apache {
+  require my_os
+
+  class { 'apache':
+    default_mods        => true,
+    default_confd_files => true,
+  }
+
+  apache::mod { 'proxy_ajp': }
+
+  apache::vhost { 'dev.example.com':
+    vhost_name       => '*',
+    port             => '81',
+    docroot          => '/var/www/petshop',
+    proxy_pass => [
+      { 'path' => '/petshop', 'url' => 'ajp://10.10.10.10:8009' },
+    ],
+  }
+}
+
 
 class my_java {
   require my_os
@@ -82,78 +137,8 @@ class my_postgresql {
 
 }
 
-class my_mysql {
-  require my_os
-
-  # SELECT PASSWORD('petshop')
-  class { '::mysql::server':
-    root_password    => 'password',
-    override_options => { 
-          'mysqld' => { 
-            'max_connections'   => '1024' ,
-            'bind-address'      => '10.10.10.10',
-          } 
-      },
-    users            => { 'petshop@%'      => {
-                            ensure         => 'present',
-                            password_hash  => '*8C4212B9269BA7797285063D0359C0C41311E472',
-                           },  
-                        },   
-    grants           => { 'petshop@%/petshop.*'  => {
-                            ensure     => 'present',
-                            options    => ['GRANT'],
-                            privileges => ['DROP','ALTER','SELECT', 'INSERT', 'UPDATE', 'DELETE'],
-                            table      => 'petshop.*',
-                            user       => 'petshop@%',
-                          },
-                        },  
-    databases        => { 'petshop' => {
-                            ensure  => 'present',
-                            charset => 'utf8',
-                          },
-                        },  
-    service_enabled  => true,  
-  }
-}  
-
-class my_tomcat {
-  require my_os,my_java
-
-  Exec {
-    path => '/usr/bin:/usr/sbin/:/bin:/sbin:/usr/local/bin:/usr/local/sbin',
-  }
-
-  class { 'tomcat':
-    version     => 7,
-    sources     => true,
-  }
-
-  tomcat::instance {'petshop':
-    ensure      => present,
-    server_port => '8005',
-    http_port   => '8080',
-    ajp_port    => '8009',
-    java_home   => '/opt/jdk1.8.0_05',
-  }
-
-  file{'/srv/tomcat/petshop/webapps/sample.war':
-    ensure  => present,
-    source  => '/vagrant/sample.war',   
-    mode    => '0664',
-    require => Tomcat::Instance['petshop'],
-  }
-
-}
-
 class my_wildfly{
   require my_os,my_java
-
-  # class { 'wildfly::install':
-  #   version        => '8.1.0',
-  #   install_source => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
-  #   install_file   => 'wildfly-8.1.0.Final.tar.gz',
-  #   java_home      => '/opt/jdk-8',
-  # }
 
   class { 'wildfly::install':
     version           => '8.1.0',
@@ -164,7 +149,7 @@ class my_wildfly{
     user              => 'wildfly',
     dirname           => '/opt/wildfly',
     mode              => 'standalone',
-    config            => 'standalone-full.xml',
+    config            => 'standalone-full-ha.xml',
     java_xmx          => '512m',
     java_xms          => '256m',
     java_maxpermsize  => '256m',
@@ -173,35 +158,17 @@ class my_wildfly{
     public_http_port  => '8080',
     public_https_port => '8443',
     ajp_port          => '8009',
-    users_mgmt        => { 'wildfly' => { username => 'wildfly', password => '2c6368f4996288fcc621c5355d3e39b7'}},
+    users_mgmt        => { 'wildfly' => { 
+                              username => 'wildfly', 
+                              password => '2c6368f4996288fcc621c5355d3e39b7'}
+                          },
   }
-
-  file{'/opt/wildfly/standalone/deployments/sample.war':
-    ensure  => present,
-    source  => '/vagrant/sample.war',   
-    mode    => '0664',
-    require => Class['wildfly::install'],
-  }
-
-}
-
-class my_apache {
-  require my_os
-
-  class { 'apache':
-    default_mods        => true,
-    default_confd_files => true,
-  }
-
-  apache::mod { 'proxy_ajp': }
-
-  apache::vhost { 'dev.example.com':
-    vhost_name       => '*',
-    port             => '81',
-    docroot          => '/var/www/petshop',
-    proxy_pass => [
-      { 'path' => '/petshop', 'url' => 'ajp://10.10.10.10:8009' },
-    ],
+  wget::fetch { "download sample.war":
+    source      => 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war',
+    destination => '/opt/wildfly/standalone/deployments/sample.war',
+    timeout     => 0,
+    verbose     => false,
+    require     => Class['wildfly::install'],
   }
 }
 

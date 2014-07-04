@@ -1,12 +1,5 @@
 #vagrant-fedora20-puppet
 
-##tomcat 7.0.52 on JDK1.8.05
-
-###petshop instance
-/srv/tomcat/petshop
-
-###sample app
-http://10.10.10.10:8080/sample/
 
 ##wildfly 8.1.0 on JDK1.8.05
 
