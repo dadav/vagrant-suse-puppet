@@ -5,16 +5,13 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box = "fedora-20-x86_64.box"
+  config.vm.box     = "fedora-20-x86_64.box"
   config.vm.box_url = "https://dl.dropboxusercontent.com/s/ohazhdin4nibmx9/fedora-20-x86_64.box"
 
   config.vm.hostname = "dev.example.com"
   config.vm.network :private_network, ip: "10.10.10.10"
 
   config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=777"]
-  
-  config.vm.provision :shell, :inline => "rm -rf /etc/puppet/modules;ln -sf /vagrant/puppet/modules /etc/puppet/modules"
-
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "2048"]
@@ -25,13 +22,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :puppet do |puppet|
       puppet.manifests_path    = "puppet/manifests"
       puppet.module_path       = "puppet/modules"
+      puppet.working_directory = '/vagrant'
       puppet.manifest_file     = "site.pp"
-      puppet.options           = "--verbose"
-  
-      puppet.facter = {
-        "environment"     => "development",
-        "vm_type"         => "vagrant",
-      }
+      puppet.options           = [
+                                  '--verbose',
+                                  '--report',
+#                                  '--debug'
+                                 ]
   end
 
 end
