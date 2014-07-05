@@ -38,7 +38,7 @@ class my_os {
 
 
 class my_mysql {
-  require my_os
+  contain my_os
 
   class { '::mysql::server':
     root_password    => 'password',
@@ -74,7 +74,7 @@ class my_mysql {
 }  
 
 class my_apache {
-  require my_os
+  contain my_os
 
   class { 'apache':
     default_mods        => true,
@@ -93,9 +93,8 @@ class my_apache {
   }
 }
 
-
 class my_java {
-  require my_os
+  contain my_os
 
   class { 'jdk_oracle': 
     version => "8",
@@ -103,42 +102,8 @@ class my_java {
 
 }
 
-class my_postgresql {
-  require my_os
-
-  class { 'postgresql::server':
-    ip_mask_allow_all_users    => '0.0.0.0/0',
-    listen_addresses           => '*',
-    postgres_password          => 'password',
-  }
-
-  postgresql::server::db { 'petshop':
-    user     => 'petshop',
-    password => postgresql_password('petshop', 'password'),
-  }
-
-  postgresql::server::role { 'managers':
-    password_hash => postgresql_password('managers', 'password'),
-  }
-
-  postgresql::server::database_grant { 'test1':
-    privilege => 'ALL',
-    db        => 'petshop',
-    role      => 'managers',
-  }
-
-  postgresql::validate_db_connection { 'validate my postgres connection':
-    database_host           => '10.10.10.10',
-    database_username       => 'petshop',
-    database_password       => 'password',
-    database_name           => 'petshop',
-    require                 => Postgresql::Server::Db['petshop']
-  }
-
-}
-
 class my_wildfly{
-  require my_os,my_java
+  contain my_os,my_java
 
   class { 'wildfly::install':
     version           => '8.1.0',
@@ -172,3 +137,35 @@ class my_wildfly{
   }
 }
 
+class my_postgresql {
+  contain my_os
+
+  class { 'postgresql::server':
+    ip_mask_allow_all_users    => '0.0.0.0/0',
+    listen_addresses           => '*',
+    postgres_password          => 'password',
+  }
+
+  postgresql::server::db { 'petshop':
+    user     => 'petshop',
+    password => postgresql_password('petshop', 'password'),
+  }
+
+  postgresql::server::role { 'managers':
+    password_hash => postgresql_password('managers', 'password'),
+  }
+
+  postgresql::server::database_grant { 'test1':
+    privilege => 'ALL',
+    db        => 'petshop',
+    role      => 'managers',
+  }
+
+  postgresql::validate_db_connection { 'validate my postgres connection':
+    database_host           => '10.10.10.10',
+    database_username       => 'petshop',
+    database_password       => 'password',
+    database_name           => 'petshop',
+    require                 => Postgresql::Server::Db['petshop']
+  }
+}
