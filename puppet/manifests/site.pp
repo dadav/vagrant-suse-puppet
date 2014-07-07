@@ -28,14 +28,12 @@ class my_os {
     hasstatus => true,
   }
 
-  $install = ['binutils.x86_64','unzip.x86_64',
-              'wget','java-1.7.0-openjdk.x86_64']
+  $install = ['binutils.x86_64','wget']
 
   package { $install:
     ensure  => present,
   }
 }
-
 
 class my_mysql {
   contain my_os
@@ -99,7 +97,6 @@ class my_java {
   class { 'jdk_oracle': 
     version => "8",
   }
-
 }
 
 class my_wildfly{
