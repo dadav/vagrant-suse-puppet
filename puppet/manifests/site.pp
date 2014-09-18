@@ -6,7 +6,7 @@ node default {
   include my_apache
   include my_java
   include my_wildfly
-}  
+}
 
 # Operating Sytem settings
 class my_os {
@@ -40,19 +40,19 @@ class my_mysql {
 
   class { '::mysql::server':
     root_password    => 'password',
-    override_options => { 
-      'mysqld' => { 
+    override_options => {
+      'mysqld' => {
         'max_connections' => '1024' ,
         'bind-address'    => '10.10.10.10',
-      } 
+      }
      },
-    users => { 
+    users => {
       'petshop@%' => {
          ensure        => 'present',
          password_hash => '*8C4212B9269BA7797285063D0359C0C41311E472',
-       },  
-     },   
-    grants => { 
+       },
+     },
+    grants => {
       'petshop@%/petshop.*'  => {
         ensure     => 'present',
         options    => ['GRANT'],
@@ -60,16 +60,16 @@ class my_mysql {
         table      => 'petshop.*',
         user       => 'petshop@%',
       },
-     },  
-    databases => { 
+     },
+    databases => {
       'petshop' => {
         ensure  => 'present',
         charset => 'utf8',
       },
-     },  
-    service_enabled => true,  
+     },
+    service_enabled => true,
   }
-}  
+}
 
 class my_apache {
   contain my_os
@@ -94,7 +94,7 @@ class my_apache {
 class my_java {
   contain my_os
 
-  class { 'jdk_oracle': 
+  class { 'jdk_oracle':
     version => "8",
   }
 }
@@ -110,6 +110,7 @@ class my_wildfly{
     dirname           => '/opt/wildfly',
     mode              => 'standalone',
     config            => 'standalone-full-ha.xml',
+    users_mgmt        => { 'wildfly' => { username => 'wildfly', password => '2c6368f4996288fcc621c5355d3e39b7'}},
   }
 
   wget::fetch { "download sample.war":

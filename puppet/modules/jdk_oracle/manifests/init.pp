@@ -44,11 +44,10 @@ class jdk_oracle(
             fail("Unsupported platform: ${platform}.  Implement me?")
         }
     }
-
     case $version {
         '8': {
-            $javaDownloadURI = "http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-${plat_filename}.tar.gz"
-            $java_home = "${install_dir}/jdk1.8.0_05"
+            $javaDownloadURI = "http://download.oracle.com/otn-pub/java/jdk/8u20-b26/jdk-8u20-linux-${plat_filename}.tar.gz"
+            $java_home = "${install_dir}/jdk1.8.0_20"
         }
         '7': {
             $javaDownloadURI = "http://download.oracle.com/otn-pub/java/jdk/7/jdk-7-linux-${plat_filename}.tar.gz"
