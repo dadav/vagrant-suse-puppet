@@ -1,7 +1,7 @@
 #vagrant-fedora20-puppet
 
 
-##wildfly 8.1.0 on JDK1.8.05
+##wildfly 8.2.0 on JDK1.8.20
 
 ###management app
 http://10.10.10.10:9990
