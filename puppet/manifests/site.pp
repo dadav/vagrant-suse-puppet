@@ -103,9 +103,9 @@ class my_wildfly{
   contain my_os,my_java
 
   class { 'wildfly::install':
-    version           => '8.1.0',
-    install_source    => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
-    install_file      => 'wildfly-8.1.0.Final.tar.gz',
+    version           => '8.2.0',
+    install_source    => 'http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz',
+    install_file      => 'wildfly-8.2.0.Final.tar.gz',
     java_home         => '/opt/jdk-8',
     dirname           => '/opt/wildfly',
     mode              => 'standalone',
