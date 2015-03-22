@@ -1,4 +1,5 @@
 #
+# Wildfly default params class
 #
 class wildfly::params {
 
@@ -7,9 +8,9 @@ class wildfly::params {
   $dirname = '/opt/wildfly'
 
   $service_file  = $::osfamily? {
-    Debian  => 'wildfly-init-debian.sh.erb',
-    RedHat  => 'wildfly-init-redhat.sh.erb',
-    default => 'wildfly-init-redhat.sh.erb',
+    Debian  => 'wildfly-init-debian.sh',
+    RedHat  => 'wildfly-init-redhat.sh',
+    default => 'wildfly-init-redhat.sh',
   }
 
   $mode              = 'standalone'
@@ -32,7 +33,7 @@ class wildfly::params {
   $users_mgmt = {
     'wildfly' => {
       username => 'wildfly',
-      password => '2c6368f4996288fcc621c5355d3e39b7',
+      password => 'wildfly',
     },
   }
 

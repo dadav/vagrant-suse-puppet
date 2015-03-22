@@ -1,16 +1,18 @@
-#Wildfly JBoss puppet module
+# Wildfly JBoss puppet module
 [![Build Status](https://travis-ci.org/biemond/biemond-wildfly.png)](https://travis-ci.org/biemond/biemond-wildfly)
 
 created by Edwin Biemond email biemond at gmail dot com
 [biemond.blogspot.com](http://biemond.blogspot.com)
 [Github homepage](https://github.com/biemond/biemond-wildfly)
 
+Big thanks to Jairo Junior for his contributions
+
 Should work on every Redhat or Debian family member, tested it with Wildfly 8.2, 8.1 & 8.0
 
-##Dependency
+## Dependency
 This module requires a JVM ( should already be there )
 
-## module defaults
+## Module defaults
 - group             wildfly
 - user              wildfly
 - dirname           /opt/wildfly
@@ -27,39 +29,35 @@ This module requires a JVM ( should already be there )
 - users_mgmt        user 'wildfly' with wildfly as password
 
 
-##Usage
+## Usage
 
-    class { 'wildfly::install':
+    class { 'wildfly':
       version        => '8.2.0',
       install_source => 'http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz',
-      install_file   => 'wildfly-8.2.0.Final.tar.gz',
       java_home      => '/opt/jdk-8',
     }
 
 or for wildfly 8.1.0
 
-    class { 'wildfly::install':
+    class { 'wildfly':
       version        => '8.1.0',
       install_source => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
-      install_file   => 'wildfly-8.1.0.Final.tar.gz',
       java_home      => '/opt/jdk-8',
     }
 
 or for wildfly 8.0.0
 
-    class { 'wildfly::install':
+    class { 'wildfly':
       version        => '8.0.0',
       install_source => 'http://download.jboss.org/wildfly/8.0.0.Final/wildfly-8.0.0.Final.tar.gz',
-      install_file   => 'wildfly-8.0.0.Final.tar.gz',
       java_home      => '/opt/jdk-8',
     }
 
 or you can override a paramater
 
-    class { 'wildfly::install':
+    class { 'wildfly':
       version           => '8.1.0',
       install_source    => 'http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.tar.gz',
-      install_file      => 'wildfly-8.1.0.Final.tar.gz',
       java_home         => '/opt/jdk-8',
       group             => 'wildfly',
       user              => 'wildfly',
@@ -74,6 +72,6 @@ or you can override a paramater
       public_http_port  => '8080',
       public_https_port => '8443',
       ajp_port          => '8009',
-      users_mgmt        => { 'wildfly' => { username => 'wildfly', password => '2c6368f4996288fcc621c5355d3e39b7'}},
+      users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
     }
 
