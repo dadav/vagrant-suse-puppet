@@ -112,13 +112,51 @@ class my_wildfly{
     users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
   }
 
-  wget::fetch { "download sample.war":
-    source      => 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war',
-    destination => '/opt/wildfly/standalone/deployments/sample.war',
-    timeout     => 0,
-    verbose     => false,
-    require     => Class['wildfly::install'],
+  wildfly::standalone::deploy_from_url { 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war':
+    require  => Class['wildfly'],
   }
+
+  wildfly::config::add_app_user { 'Adding mgmtuser':
+    username => 'mgmtuser',
+    password => 'mgmtuser',
+    require  => Class['wildfly'],
+  }
+
+  wildfly::config::add_app_user { 'Adding appuser':
+    username => 'appuser',
+    password => 'appuser',
+    require  => Class['wildfly'],
+  }
+
+  wildfly::config::associate_groups_to_user { 'Associate groups to mgmtuser':
+    username => 'mgmtuser',
+    groups   => 'admin,mygroup',
+    require  => Wildfly::Config::Add_app_user['Adding mgmtuser'],
+  }
+
+  wildfly::config::associate_roles_to_user { 'Associate roles to app user':
+    username => 'appuser',
+    roles    => 'guest,ejb',
+    require  => Wildfly::Config::Add_app_user['Adding appuser'],
+  }
+
+  wildfly::standalone::messaging::queue { 'DemoQueue':
+    durable => true,
+    entries => ['java:/jms/queue/DemoQueue'],
+    require  => Class['wildfly'],
+  }
+
+  wildfly::standalone::messaging::topic { 'DemoTopic':
+    entries => ['java:/jms/topic/DemoTopic'],
+    require  => Class['wildfly'],
+  }
+
+  # wildfly::config::module { 'org.postgresql':
+  #   file_uri => 'https://jdbc.postgresql.org/download/postgresql-9.4-1201.jdbc4.jar',
+  #   require  => Class['wildfly'],
+  # }
+
+
 }
 
 class my_postgresql {
