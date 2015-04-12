@@ -80,21 +80,6 @@ or you can override a paramater
 
     wildfly::standalone::deploy_from_url { 'http://localhost:8080/mod_cluster-demo-server-1.3.0.Final.war': }
 
-**From Nexus:**
-
-    class { 'nexus':
-      url      => 'https://repository.jboss.org/nexus',
-      username => 'user',
-      password => '******'
-    }
-
-    Class['nexus'] ->
-    jboss::standalone::deploy { 'demo.war':
-      gav       => 'org.jboss.mod_cluster:mod_cluster-demo-server:1.3.0.Final',
-      packaging => 'war',
-      repository => 'public'
-    }
-
 
 ## User management
 
@@ -124,10 +109,11 @@ And associate groups or roles to them (requires server restart)
 
 ## Module installation
 
-Install a module from a remote file system. Sample module package: https://www.dropbox.com/s/q9agidgzt8pxmkk/postgresql-9.3-1102-jdbc4-module.tar.gz?dl=0
+Install a JAR module from a remote file system.
 
     wildfly::config::module { 'org.postgresql':
-      file_uri => http://localhost:8080/postgresql-9.3-1102-jdbc4-module.tar.gz
+      file_uri     => 'http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1103-jdbc4/postgresql-9.3-1103-jdbc4.jar',
+      dependencies => ['javax.api', 'javax.transaction.api']
     }
 
 ## Datasources

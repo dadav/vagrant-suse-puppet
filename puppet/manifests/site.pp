@@ -99,8 +99,42 @@ class my_java {
   }
 }
 
+class my_postgresql {
+  contain my_os
+
+  class { 'postgresql::server':
+    ip_mask_allow_all_users    => '0.0.0.0/0',
+    listen_addresses           => '*',
+    postgres_password          => 'password',
+  }
+
+  postgresql::server::db { 'petshop':
+    user     => 'petshop',
+    password => postgresql_password('petshop', 'password'),
+  }
+
+  postgresql::server::role { 'managers':
+    password_hash => postgresql_password('managers', 'password'),
+  }
+
+  postgresql::server::database_grant { 'test1':
+    privilege => 'ALL',
+    db        => 'petshop',
+    role      => 'managers',
+  }
+
+  postgresql::validate_db_connection { 'validate my postgres connection':
+    database_host           => '10.10.10.10',
+    database_username       => 'petshop',
+    database_password       => 'password',
+    database_name           => 'petshop',
+    require                 => Postgresql::Server::Db['petshop']
+  }
+}
+
+
 class my_wildfly{
-  contain my_os,my_java
+  contain my_os, my_java, my_postgresql
 
   class { 'wildfly':
     version           => '8.2.0',
@@ -143,51 +177,32 @@ class my_wildfly{
   wildfly::standalone::messaging::queue { 'DemoQueue':
     durable => true,
     entries => ['java:/jms/queue/DemoQueue'],
-    require  => Class['wildfly'],
+    require => Class['wildfly'],
   }
 
   wildfly::standalone::messaging::topic { 'DemoTopic':
     entries => ['java:/jms/topic/DemoTopic'],
-    require  => Class['wildfly'],
+    require => Class['wildfly'],
   }
 
-  # wildfly::config::module { 'org.postgresql':
-  #   file_uri => 'https://jdbc.postgresql.org/download/postgresql-9.4-1201.jdbc4.jar',
-  #   require  => Class['wildfly'],
-  # }
-
-
-}
-
-class my_postgresql {
-  contain my_os
-
-  class { 'postgresql::server':
-    ip_mask_allow_all_users    => '0.0.0.0/0',
-    listen_addresses           => '*',
-    postgres_password          => 'password',
-  }
-
-  postgresql::server::db { 'petshop':
-    user     => 'petshop',
-    password => postgresql_password('petshop', 'password'),
-  }
-
-  postgresql::server::role { 'managers':
-    password_hash => postgresql_password('managers', 'password'),
-  }
-
-  postgresql::server::database_grant { 'test1':
-    privilege => 'ALL',
-    db        => 'petshop',
-    role      => 'managers',
-  }
-
-  postgresql::validate_db_connection { 'validate my postgres connection':
-    database_host           => '10.10.10.10',
-    database_username       => 'petshop',
-    database_password       => 'password',
-    database_name           => 'petshop',
-    require                 => Postgresql::Server::Db['petshop']
+  wildfly::config::module { 'org.postgresql':
+    file_uri     => 'http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1103-jdbc4/postgresql-9.3-1103-jdbc4.jar',
+    dependencies => ['javax.api', 'javax.transaction.api'],
+    require      => Class['wildfly'],
+  } ->
+  wildfly::standalone::datasources::driver { 'Driver postgresql':
+    driver_name                     => 'postgresql',
+    driver_module_name              => 'org.postgresql',
+    driver_xa_datasource_class_name => 'org.postgresql.xa.PGXADataSource'
+  } ->
+  wildfly::standalone::datasources::datasource { 'petshop datasource':
+    name           => 'petshopDS',
+    config         => { 'driver-name'    => 'postgresql',
+                        'connection-url' => 'jdbc:postgresql://10.10.10.10/petshop',
+                        'jndi-name'      => 'java:jboss/datasources/petshopDS',
+                        'user-name'      => 'petshop',
+                        'password'       => 'password'
+                      }
   }
 }
+
