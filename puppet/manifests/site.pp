@@ -150,7 +150,7 @@ class my_wildfly{
     require  => Class['wildfly'],
   }
 
-  wildfly::config::add_app_user { 'Adding mgmtuser':
+  wildfly::config::add_mgmt_user { 'Adding mgmtuser':
     username => 'mgmtuser',
     password => 'mgmtuser',
     require  => Class['wildfly'],
@@ -165,7 +165,7 @@ class my_wildfly{
   wildfly::config::associate_groups_to_user { 'Associate groups to mgmtuser':
     username => 'mgmtuser',
     groups   => 'admin,mygroup',
-    require  => Wildfly::Config::Add_app_user['Adding mgmtuser'],
+    require  => Wildfly::Config::Add_mgmt_user['Adding mgmtuser'],
   }
 
   wildfly::config::associate_roles_to_user { 'Associate roles to app user':
