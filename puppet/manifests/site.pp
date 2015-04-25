@@ -146,7 +146,8 @@ class my_wildfly{
     users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
   }
 
-  wildfly::standalone::deploy_from_url { 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war':
+  wildfly::standalone::deploy { 'sample.war':
+    source   => 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war',
     require  => Class['wildfly'],
   }
 
