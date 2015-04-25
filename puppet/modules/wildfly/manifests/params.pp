@@ -8,9 +8,9 @@ class wildfly::params {
   $dirname = '/opt/wildfly'
 
   $service_file  = $::osfamily? {
-    Debian  => 'wildfly-init-debian.sh',
-    RedHat  => 'wildfly-init-redhat.sh',
-    default => 'wildfly-init-redhat.sh',
+    'Debian' => 'wildfly-init-debian.sh',
+    'RedHat' => 'wildfly-init-redhat.sh',
+    default  => 'wildfly-init-redhat.sh',
   }
 
   $java_home         = '/usr/java/jdk1.7.0_75/'
@@ -21,7 +21,7 @@ class wildfly::params {
   $config_file_path  = "${dirname}/${mode}/configuration/${config}"
   $console_log       = '/var/log/wildfly/console.log'
 
-  #use a hash definition
+#use a hash definition
 
   $mgmt_bind         = '0.0.0.0'
   $mgmt_http_port    = '9990'
