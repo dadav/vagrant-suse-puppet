@@ -187,7 +187,7 @@ class my_wildfly{
   }
 
   wildfly::config::module { 'org.postgresql':
-    file_uri     => 'http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1103-jdbc4/postgresql-9.3-1103-jdbc4.jar',
+    source       => 'http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1103-jdbc4/postgresql-9.3-1103-jdbc4.jar',
     dependencies => ['javax.api', 'javax.transaction.api'],
     require      => Class['wildfly'],
   } ->
