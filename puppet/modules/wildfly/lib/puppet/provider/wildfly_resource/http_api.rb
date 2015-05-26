@@ -1,8 +1,11 @@
-require 'puppet/util/wildfly_cli'
+require 'puppet_x/util/wildfly_cli'
 
 Puppet::Type.type(:wildfly_resource).provide(:http_api) do
+
+  desc 'Uses JBoss HTTP API to manipulate a resource'
+
   def cli
-    Puppet::Util::WildflyCli.instance(@resource[:host], @resource[:port], @resource[:username], @resource[:password])
+    PuppetX::Util::WildflyCli.instance(@resource[:host], @resource[:port], @resource[:username], @resource[:password])
   end
 
   def create

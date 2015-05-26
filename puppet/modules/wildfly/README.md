@@ -20,6 +20,7 @@ This module requires a JVM ( should already be there )
 - version           8.2.0
 - install_source    http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz
 - java_home         /usr/java/jdk1.7.0_75/ (default dir for oracle official rpm)
+- manage_user       true
 - group             wildfly
 - user              wildfly
 - dirname           /opt/wildfly
@@ -82,13 +83,23 @@ or you can override a paramater
 
 **From a source:**
 
-Source supports: http://, ftp://, file:// 
+Source supports: http://, ftp://, file://
 
     wildfly::standalone::deploy { 'hawtio.war':
      source   => 'http://central.maven.org/maven2/io/hawt/hawtio-web/1.4.48/hawtio-web-1.4.48.war',
      checksum => '303e8fcb569a0c3d33b7c918801e5789621f6639' #sha1
-    } 
+    }
     
+**From Nexus:**
+
+    wildfly::standalone::deploy { 'hawtio.war':
+      ensure     => present,
+      nexus_url  => 'https://oss.sonatype.org',
+      gav        => 'io.hawt:hawtio-web:1.4.36',
+      repository => 'releases',
+      packaging  => 'war',
+    }
+
 ## User management
 
 You can add App and Management users (requires server restart).
@@ -123,7 +134,7 @@ Install a JAR module from a remote file system.
       source       => 'http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1103-jdbc4/postgresql-9.3-1103-jdbc4.jar',
       dependencies => ['javax.api', 'javax.transaction.api']
     }
-    
+
 ## Datasources
 
 Setup a driver and a datasource:
@@ -134,8 +145,7 @@ Setup a driver and a datasource:
       driver_xa_datasource_class_name => 'org.postgresql.xa.PGXADataSource'
     }
     ->
-    wildfly::standalone::datasources::datasource { 'Demo datasource':
-      name           => 'DemoDS',
+    wildfly::standalone::datasources::datasource { 'DemoDS':
       config         => {
         'driver-name' => 'postgresql',
         'connection-url' => 'jdbc:postgresql://localhost/postgres',
@@ -144,7 +154,7 @@ Setup a driver and a datasource:
         'password' => 'postgres'
       }
     }
-    
+
 Alternatively, you can install a JDBC driver and module using deploy if your driver is JDBC4 compliant:
 
     wildfly::standalone::deploy { 'postgresql-9.3-1103-jdbc4.jar':
@@ -209,7 +219,7 @@ Datasource configuration uses a hash with elements that match JBoss-CLI datasour
 
 ## Server Reload
 
-Some configurations like SSL and modcluster requires a server reload, it can be achieved with the following define:
+Some configurations like SSL and modcluster requires a server reload, it can be achieved with the following snippet:
 
     wildfly::util::exec_cli { 'Reload if necessary':
       command => 'reload',
@@ -239,13 +249,13 @@ Some configurations like SSL and modcluster requires a server reload, it can be 
 
 ## Instructions for Developers
 
-This module is based on three custom types: 
+This module is based on three custom types:
 
     wildfly_cli { 'Enable ExampleDS'
       command => '/subsystem=datasources/data-source=ExampleDS:enable',
       unless  => '(result == true) of /subsystem=datasources/data-source=ExampleDS:read-attribute(name=enabled)'
     }
-    
+
     wildfly_resource { '/subsystem=datasources/data-source=ExampleDS':
       state => {
                'driver-name' => 'postgresql',
@@ -255,11 +265,26 @@ This module is based on three custom types:
                'password' => 'postgres'
                }
     }
-    
+
     wildfly_deploy { 'sample.war':
       source => 'file:/vagrant/sample.war'
     }
 
-They all require a management username, password, host and port params, as it uses Wildfly HTTP API. *Host defaults to 127.0.0.1 and port to 9990*    
-    
+They all require a management username, password, host and port params, as it uses Wildfly HTTP API. *Host defaults to 127.0.0.1 and port to 9990*
+
 You can do virtually any Wildfly configuration using these custom types. Also this modules provides some defines in wildfly::standalone namespace which are built on top of these custom types. They are intended to enforce good practices, syntax sugar or serve as examples.
+
+## Testing
+
+    gem install bundler --no-rdoc --no-ri
+    bundle install --without development
+    gem update --system 2.1.11
+
+    bundle exec rake syntax
+    bundle exec rake lint
+    bundle exec rubocop
+
+    bundle exec rake spec
+    bundle exec rspec spec/acceptance # default centos-66-x64
+    BEAKER_set=centos-70-x64 bundle exec rspec spec/acceptance
+    BEAKER_set=debian-78-x64 bundle exec rspec spec/acceptance

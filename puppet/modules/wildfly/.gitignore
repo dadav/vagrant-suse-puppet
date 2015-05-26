@@ -1,5 +1,11 @@
 pkg
 .bundle/config
 .idea
+/log
 
 *.lock
+.vagrant
+
+spec/fixtures/*
+spec/reports/*
+coverage/*

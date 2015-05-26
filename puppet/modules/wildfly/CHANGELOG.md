@@ -1,5 +1,16 @@
 # History
 
+## 0.3.4
+- deploy from nexus
+- manage_user parameter for controling the default creation of the wildfly user/group
+
+## 0.3.3
+- Beaker unit tests for CentOS 6.6, 7.0 and Debian 7
+- fix debian wildlfy configuration file /etc/default/wildfly
+
+## 0.3.2
+- More improvements
+
 ## 0.3.1
 - Code quality improvement and support for onlyif in wildfly_cli
 
