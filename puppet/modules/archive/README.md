@@ -1,14 +1,23 @@
 # Puppet Archive
 
 [![Puppet Forge](http://img.shields.io/puppetforge/v/nanliu/archive.svg)](https://forge.puppetlabs.com/nanliu/archive)
-[![Build Status](https://travis-ci.org/nanliu/puppet-archive.png)](https://travis-ci.org/nanliu/puppet-archive)
+[![Build Status](https://travis-ci.org/puppet-community/puppet-archive.png)](https://travis-ci.org/puppet-community/puppet-archive)
 
-## Warning
+_*Warning*_:
 
 Release 0.3.x contains breaking changes
 
 * The parameter 7zip have been changed to seven_zip to conform to Puppet 4.x variable name requirements.
 * The namevar name have been changed to path to allow files with the same filename to exists in different filepath.
+* This project have been migrated to [puppet-community](https://github.com/puppet-community/puppet-archive), please adjust your repo git source.
+
+_*Experimental*_:
+
+The following define type/features are experimental:
+
+* archive::artifactory
+* archive::go
+* checksum_url (to support nexus files)
 
 #### Table of Contents
 
@@ -103,15 +112,15 @@ class { 'archive':
 * `cookie`: archive file download cookie.
 * `checksum_type` archive file checksum type (none|md5|sha1|sha2|sh256|sha384|sha512). (default: none)
 * `checksum`: archive file checksum (match checksum_type)
-* `checksum_source`: archive file checksum source (instead of specify checksum)
-* `checksum_verify`: whether checksum be verified (true|false). (default: true)
-* `extract`: whether archive be extracted after download (true|false). (default: false)
+* `checksum_url`: archive file checksum source (instead of specify checksum)
+* `checksum_verify`: whether checksum will be verified (true|false). (default: true)
+* `extract`: whether archive will be extracted after download (true|false). (default: false)
 * `extract_path`: target folder path to extract archive.
 * `extract_command`: custom extraction command ('tar xvf example.tar.gz'), also support sprintf format ('tar xvf %s') which will be processed with the filename: sprintf('tar xvf %s', filename)
 * `extract_flags`: custom extraction options, this replaces the default flags. A string such as 'xvf' for a tar file would replace the default xf flag. A hash is useful when custom flags are needed for different platforms. {'tar' => 'xzf', '7z' => 'x -aot'}.
 * `user`: extract command user (using this option will configure the archive file permission to 0644 so the user can read the file).
 * `group`: extract command group (using this option will configure the archive file permisison to 0644 so the user can read the file).
-* `cleanup`: whether archive file be removed after extraction (true|false). (default: true)
+* `cleanup`: whether archive file will be removed after extraction (true|false). (default: true)
 * `creates`: if file/directory exists, will not download/extract archive.
 
 #### Example:

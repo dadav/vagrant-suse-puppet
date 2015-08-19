@@ -1,16 +1,4 @@
 {
-  "name": "nanliu-archive",
-  "version": "0.3.0",
-  "author": "Nan Liu",
-  "summary": "Compressed file download and extraction with native types/providers",
-  "license": "Apache-2.0",
-  "source": "http://github.com/nanliu/puppet-archive",
-  "project_page": "https://github.com/nanliu/puppet-archive",
-  "issues_url": "https://github.com/nanliu/puppet-archive/issues",
-  "dependencies": [
-    {"name":"puppetlabs/stdlib","version_requirement":">= 2.2.1"},
-    {"name":"puppetlabs/pe_gem","version_requirement":">= 0.0.1"}
-  ],
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
@@ -107,5 +95,22 @@
       "version_requirement": ">=2.7.0"
     }
   ],
-  "description": "Manages compressed file download and extraction with optional cleanup ."
+  "name": "puppet-archive",
+  "version": "0.3.0",
+  "source": "https://github.com/puppet-community/puppet-archive",
+  "author": "puppetcommunity",
+  "license": "Apache 2.0",
+  "summary": "Compressed archive file download and extraction with native types/providers for Windows and Unix",
+  "description": "The archive module provides native puppet resources for managing compressed file download and extraction with optional checksum verification and cleanup.",
+  "project_page": "https://github.com/puppet-community/puppet-archive",
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 2.2.1"
+    },
+    {
+      "name": "puppetlabs/pe_gem",
+      "version_requirement": ">= 0.0.1"
+    }
+  ]
 }

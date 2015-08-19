@@ -6,6 +6,8 @@ class archive::params {
       $owner = '0'
       $group = '0'
       $mode  = '0640'
+      $seven_zip_name = undef
+      $seven_zip_provider = undef
     }
     'Windows': {
       $path               = $::staging_windir
@@ -17,7 +19,9 @@ class archive::params {
     }
   }
 
-  if $::puppetversion =~ /Puppet Enterprise/ and $::osfamily != 'Windows' {
+  if versioncmp($::puppetversion, '4.0.0') >= 0 {
+    $gem_provider = 'puppet_gem'
+  } elsif $::puppetversion =~ /Puppet Enterprise/ and $::osfamily != 'Windows' {
     $gem_provider = 'pe_gem'
   } else {
     $gem_provider = 'gem'

@@ -20,15 +20,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision :puppet do |puppet|
-      puppet.manifests_path    = "puppet/manifests"
+      puppet.binary_path       = "/opt/puppetlabs/bin"
+      puppet.environment_path  = "puppet/environments"
+      puppet.environment       = "development"
       puppet.module_path       = "puppet/modules"
-      puppet.working_directory = '/vagrant'
-      puppet.manifest_file     = "site.pp"
+#      puppet.manifest_file     = "site.pp"
       puppet.options           = [
                                   '--verbose',
                                   '--report',
-#                                  '--debug'
+                                  '--trace',
+#                                  '--debug',
+#                                  '--parser future',
+#                                  '--strict_variables',
                                  ]
   end
+
 
 end

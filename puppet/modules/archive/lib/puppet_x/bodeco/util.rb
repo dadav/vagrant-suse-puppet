@@ -6,7 +6,13 @@ module PuppetX
       def self.download(url, filepath, options = {})
         uri = URI(url)
         @connection = PuppetX::Bodeco.const_get(uri.scheme.upcase).new("#{uri.scheme}://#{uri.host}:#{uri.port}", options)
-        @connection.download(uri.path, filepath)
+        @connection.download(uri, filepath)
+      end
+
+      def self.content(url, options = {})
+        uri = URI(url)
+        @connection = PuppetX::Bodeco.const_get(uri.scheme.upcase).new("#{uri.scheme}://#{uri.host}:#{uri.port}", options)
+        @connection.content(uri)
       end
     end
 
@@ -21,8 +27,8 @@ module PuppetX
           require 'faraday_middleware'
         end
 
-        if Facter.value(:osfamily) == 'windows' and !ENV.has_key?("SSL_CERT_FILE")
-          ENV["SSL_CERT_FILE"] = File.expand_path(File.join(__FILE__, '..', '..', '..', '..', 'files', 'cacert.pem'))
+        if Facter.value(:osfamily) == 'windows' and !ENV.key?('SSL_CERT_FILE')
+          ENV['SSL_CERT_FILE'] = File.expand_path(File.join(__FILE__, '..', '..', '..', '..', 'files', 'cacert.pem'))
         end
 
         @connection = ::Faraday.new(url) do |conn|
@@ -35,14 +41,20 @@ module PuppetX
         end
       end
 
-      def download(url_path, file_path)
+      def download(uri, file_path)
         f = File.open(file_path, 'wb')
-        f.write(@connection.get(url_path).body)
+        f.write(@connection.get(uri.request_uri).body)
         f.close
       rescue Faraday::Error::ClientError
         f.close
         File.unlink(file_path)
-        raise $!, "Unable to download file #{url_path} from #{@connection.url_prefix}. #{$!}", $!.backtrace
+        raise $ERROR_INFO, "Unable to download file #{uri.request_uri} from #{@connection.url_prefix}. #{$ERROR_INFO}", $ERROR_INFO.backtrace
+      end
+
+      def content(uri)
+        @connection.get(uri.request_uri).body
+      rescue Faraday::Error::ClientError
+        raise $ERROR_INFO, "Unable to retrieve content #{uri.request_uri} from #{@connection.url_prefix}. #{$ERROR_INFO}", $ERROR_INFO.backtrace
       end
     end
 
@@ -65,17 +77,17 @@ module PuppetX
         end
       end
 
-      def download(url, file_path)
-        @ftp.getbinaryfile(url, file_path)
+      def download(uri, file_path)
+        @ftp.getbinaryfile(uri.path, file_path)
       end
     end
 
     class FILE
-      def initialize(url, options)
+      def initialize(_url, _options)
       end
 
-      def download(url_path, file_path)
-        FileUtils.copy(url_path, file_path)
+      def download(uri, file_path)
+        FileUtils.copy(uri.path, file_path)
       end
     end
   end
