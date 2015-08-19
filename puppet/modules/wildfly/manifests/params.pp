@@ -1,35 +1,35 @@
 #
 # Wildfly default params class
 #
-class wildfly::params (
-  $custom_service_file = undef # can be set by hiera to override the default service file location
-) {
+class wildfly::params {
 
-  $manage_user = true
-  $group       = 'wildfly'
-  $user        = 'wildfly'
-  $dirname     = '/opt/wildfly'
+  $manage_user  = true
+  $group        = 'wildfly'
+  $user         = 'wildfly'
+  $dirname      = '/opt/wildfly'
+  $service_name = 'wildfly'
 
-  if $custom_service_file != undef {
-    $service_file = $custom_service_file
+  $service_file  = $::osfamily? {
+    'Debian' => 'wildfly-init-debian.sh',
+    'RedHat' => 'wildfly-init-redhat.sh',
+    default  => 'wildfly-init-redhat.sh',
   }
-  else {
-    $service_file  = $::osfamily? {
-      'Debian' => 'wildfly-init-debian.sh',
-      'RedHat' => 'wildfly-init-redhat.sh',
-      default  => 'wildfly-init-redhat.sh',
-    }
+
+  $conf_file = $::osfamily? {
+    'RedHat' => "/etc/default/${service_name}.conf",
+    'Debian' => "/etc/default/${service_name}",
+    default => "/etc/default/${service_name}.conf",
   }
 
   $java_home         = '/usr/java/jdk1.7.0_75/'
 
   $mode              = 'standalone'
-  $config            = 'standalone-full.xml'
+  $config            = 'standalone.xml'
+  $domain_config     = 'domain.xml'
+  $host_config       = 'host.xml'
 
   $config_file_path  = "${dirname}/${mode}/configuration/${config}"
   $console_log       = '/var/log/wildfly/console.log'
-
-#use a hash definition
 
   $mgmt_bind         = '0.0.0.0'
   $mgmt_http_port    = '9990'
@@ -44,7 +44,7 @@ class wildfly::params (
   $java_xmx          = '512m'
   $java_xms          = '128m'
   $java_maxpermsize  = '256m'
-  $java_opts         = ''
+  $java_opts         = undef
 
   $users_mgmt = {
     'wildfly' => {

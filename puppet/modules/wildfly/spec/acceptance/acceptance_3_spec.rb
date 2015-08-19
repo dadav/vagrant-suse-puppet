@@ -1,8 +1,8 @@
 require 'spec_helper_acceptance'
 
-describe 'Acceptance case one. Standalone mode with defaults' do
+describe 'Acceptance case three. Standalone mode with Wildfly 9' do
 
-  context 'Initial install Wildfly and verification' do
+  context 'Initial install Wildfly 9 and verification' do
     it 'Should apply the manifest without error' do
 
       # update augeas on debian
@@ -21,7 +21,9 @@ describe 'Acceptance case one. Standalone mode with defaults' do
           }
 
           class { 'wildfly':
-            java_home => $java_home,
+            version        => '9.0.0',
+            install_source => 'http://download.jboss.org/wildfly/9.0.0.Final/wildfly-9.0.0.Final.tar.gz',
+            java_home      => $java_home,
           }
 
           class { 'java': }

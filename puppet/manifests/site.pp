@@ -146,7 +146,7 @@ class my_wildfly{
     users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
   }
 
-  wildfly::standalone::deploy { 'sample.war':
+  wildfly::deploy { 'sample.war':
     source   => 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war',
     require  => Class['wildfly'],
   }
@@ -175,13 +175,13 @@ class my_wildfly{
     require  => Wildfly::Config::Add_app_user['Adding appuser'],
   }
 
-  wildfly::standalone::messaging::queue { 'DemoQueue':
+  wildfly::messaging::queue { 'DemoQueue':
     durable => true,
     entries => ['java:/jms/queue/DemoQueue'],
     require => Class['wildfly'],
   }
 
-  wildfly::standalone::messaging::topic { 'DemoTopic':
+  wildfly::messaging::topic { 'DemoTopic':
     entries => ['java:/jms/topic/DemoTopic'],
     require => Class['wildfly'],
   }
@@ -191,12 +191,12 @@ class my_wildfly{
     dependencies => ['javax.api', 'javax.transaction.api'],
     require      => Class['wildfly'],
   } ->
-  wildfly::standalone::datasources::driver { 'Driver postgresql':
+  wildfly::datasources::driver { 'Driver postgresql':
     driver_name                     => 'postgresql',
     driver_module_name              => 'org.postgresql',
     driver_xa_datasource_class_name => 'org.postgresql.xa.PGXADataSource'
   } ->
-  wildfly::standalone::datasources::datasource { 'petshop datasource':
+  wildfly::datasources::datasource { 'petshop datasource':
     name           => 'petshopDS',
     config         => { 'driver-name'    => 'postgresql',
                         'connection-url' => 'jdbc:postgresql://10.10.10.10/petshop',

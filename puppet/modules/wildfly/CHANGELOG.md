@@ -1,5 +1,24 @@
 # History
 
+## 0.4.0
+- Unified deploy for domain/standalone modes (wildfly::deploy)
+- Removed wildfly::standalone namespace since domain and standalone configurations share the same defitions
+- Fix wildfly service to detect profile changes
+- Remove params of private classes. init.pp is suposed to be the only public class.
+
+## 0.3.7
+- Update README.md content and format to follow recommended guidelines
+- Add acceptance test for Wildfly 9
+
+## 0.3.6
+- Service needs to restart if we change anything in the standalone.conf
+- Several fixes for domain mode
+- Support escaped slashes in resource names 
+- Support ensure parameter in resource util
+- Support installing non-system modules
+- Update definitions optional parameters.
+- CLI, Support for 'has' operator to check if item is in array
+
 ## 0.3.5
 - Changes to allow wildfly module to deploy jboss EAP
 - java_opts parameters which will override the default
