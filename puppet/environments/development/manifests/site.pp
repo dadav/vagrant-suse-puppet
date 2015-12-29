@@ -139,42 +139,50 @@ class my_wildfly{
   contain my_os, my_java, my_postgresql
 
   class { 'wildfly':
-    version           => '8.2.0',
-    install_source    => 'http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz',
+    version        => '8.2.0',
+    install_source => 'http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz',
+    # version           => '9.0.2',
+    # install_source    => 'http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz',
     java_home         => '/opt/jdk1.8.0_60',
     dirname           => '/opt/wildfly',
     mode              => 'standalone',
     config            => 'standalone-full-ha.xml',
-    users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
+    users_mgmt        => { 'wildfly' => { password => 'wildfly'}},
   }
 
-  wildfly::deploy { 'sample.war':
+  wildfly::config::interfaces{'management':
+    inet_address_value => '0.0.0.0',
+    require  => Class['wildfly'],
+  }
+
+  wildfly::config::interfaces{'public':
+    inet_address_value => '0.0.0.0',
+    require  => Class['wildfly'],
+  }
+
+  wildfly::deployment { 'sample.war':
     source   => 'https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war',
     require  => Class['wildfly'],
   }
 
-  wildfly::config::add_mgmt_user { 'Adding mgmtuser':
-    username => 'mgmtuser',
+  wildfly::config::mgmt_user { 'mgmtuser':
     password => 'mgmtuser',
     require  => Class['wildfly'],
   }
 
-  wildfly::config::add_app_user { 'Adding appuser':
-    username => 'appuser',
+  wildfly::config::app_user { 'appuser':
     password => 'appuser',
     require  => Class['wildfly'],
   }
 
-  wildfly::config::associate_groups_to_user { 'Associate groups to mgmtuser':
-    username => 'mgmtuser',
+  wildfly::config::user_groups { 'mgmtuser':
     groups   => 'admin,mygroup',
-    require  => Wildfly::Config::Add_mgmt_user['Adding mgmtuser'],
+    require  => Wildfly::Config::Mgmt_user['mgmtuser'],
   }
 
-  wildfly::config::associate_roles_to_user { 'Associate roles to app user':
-    username => 'appuser',
+  wildfly::config::user_roles { 'appuser':
     roles    => 'guest,ejb',
-    require  => Wildfly::Config::Add_app_user['Adding appuser'],
+    require  => Wildfly::Config::App_user['appuser'],
   }
 
   wildfly::messaging::queue { 'DemoQueue':
@@ -206,6 +214,20 @@ class my_wildfly{
                         'user-name'      => 'petshop',
                         'password'       => 'password'
                       }
+  } ->
+  wildfly::datasources::xa_datasource { 'petshop xa datasource':
+    name            => 'petshopDSXa',
+    config          => {  'driver-name'              => 'postgresql',
+                          'jndi-name'                => 'java:jboss/datasources/petshopDSXa',
+                          'user-name'                => 'petshop',
+                          'password'                 => 'password',
+                          'xa-datasource-class'      => 'org.postgresql.xa.PGXADataSource',
+                          'xa-datasource-properties' => {
+                                'url' => {'url' => 'jdbc:postgresql://10.10.10.10/petshop'}
+                          },
+    }
   }
+
+
 }
 

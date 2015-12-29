@@ -3,11 +3,15 @@
 #
 class wildfly::params {
 
-  $manage_user  = true
-  $group        = 'wildfly'
-  $user         = 'wildfly'
-  $dirname      = '/opt/wildfly'
-  $service_name = 'wildfly'
+  $manage_user    = true
+  $uid            = undef
+  $gid            = undef
+  $group          = 'wildfly'
+  $user           = 'wildfly'
+  $dirname        = '/opt/wildfly'
+  $service_name   = 'wildfly'
+  $service_ensure = true
+  $service_enable = true
 
   $service_file  = $::osfamily? {
     'Debian' => 'wildfly-init-debian.sh',
@@ -44,13 +48,15 @@ class wildfly::params {
   $java_xmx          = '512m'
   $java_xms          = '128m'
   $java_maxpermsize  = '256m'
-  $java_opts         = undef
+  $java_opts         = ''
 
   $users_mgmt = {
     'wildfly' => {
-      username => 'wildfly',
       password => 'wildfly',
     },
   }
+
+  $domain_slave = {}
+  $custom_init  = undef
 
 }

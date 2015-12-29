@@ -5,8 +5,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box     = "fedora-20-x86_64.box"
-  config.vm.box_url = "https://dl.dropboxusercontent.com/s/ohazhdin4nibmx9/fedora-20-x86_64.box"
+  config.vm.box     = "bento/fedora-21"
 
   config.vm.hostname = "dev.example.com"
   config.vm.network :private_network, ip: "10.10.10.10"
@@ -18,6 +17,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--name"  , "dev"]
     #vb.gui = true
   end
+
+  config.vm.provision "shell", path: "puppet.sh"
 
   config.vm.provision :puppet do |puppet|
       puppet.binary_path       = "/opt/puppetlabs/bin"

@@ -34,13 +34,17 @@ Can also work with JBoss EAP ( tested on 6.1/6.2/6.3), it may change in the futu
     wildfly::install_source: http://mywebserver/jboss-eap-6.1.tar.gz
 
 
-[Vagrant fedora example](https://github.com/biemond/vagrant-fedora20-puppet) with wildfly and apache ajp, postgress db
+[Vagrant Fedora 20, Puppet 4.2.1 example](https://github.com/biemond/vagrant-fedora20-puppet) with Wildfly 8.2 and Apache AJP, Postgress db.
 
-[Vagrant CentOS HA example](https://github.com/jairojunior/wildfly-ha-vagrant-puppet) with two nodes and a load balancer (Apache + modcluster)       
+[Vagrant CentOS HA example](https://github.com/jairojunior/wildfly-ha-vagrant-puppet) with two nodes and a load balancer (Apache + modcluster).
+
+[Vagrant CentOS Domain Mode](https://github.com/jairojunior/wildfly-domain-vagrant-puppet) with two nodes (Domain master and slave).
+
+[MCollective JBoss Agent Plugin](https://github.com/jairojunior/mcollective-jboss-agent) might be useful if you want to make consistent large scale changes.
 
 ##Module Description
 
-The wildfly module can install, configure and manage (using its HTTP API) Wildfly (8/9) and JBoss AS7/EAP6 (with limitations). 
+The wildfly module can install, configure and manage (using its HTTP API) Wildfly (8/9) and JBoss AS7/EAP6 (with limitations).
 
 ##Setup
 
@@ -53,12 +57,12 @@ The wildfly module can install, configure and manage (using its HTTP API) Wildfl
 This module requires a JVM ( should already be there ).
 
 Acceptance tests works with **puppetlabs/java** in both CentOS and Debian.
-	
-###Beginning with wildlfy	
+
+###Beginning with wildlfy
 
 ## Module defaults
-- version           8.2.0
-- install_source    http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz
+- version           9.0.2
+- install_source    http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz
 - java_home         /usr/java/jdk1.7.0_75/ (default dir for oracle official rpm)
 - manage_user       true
 - group             wildfly
@@ -82,12 +86,28 @@ Acceptance tests works with **puppetlabs/java** in both CentOS and Debian.
 
 
     class { 'wildfly': }
-    
+
+or for wildfly 9.0.2
+
+    class { 'wildfly':
+      version        => '9.0.2',
+      install_source => 'http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz',
+      java_home      => '/opt/jdk-8',
+    }
+
 or for wildfly 9.0.0
 
     class { 'wildfly':
       version        => '9.0.0',
       install_source => 'http://download.jboss.org/wildfly/9.0.0.Final/wildfly-9.0.0.Final.tar.gz',
+      java_home      => '/opt/jdk-8',
+    }
+
+or for wildfly 8.2.0
+
+    class { 'wildfly':
+      version        => '8.2.0',
+      install_source => 'http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz',
       java_home      => '/opt/jdk-8',
     }
 
@@ -126,7 +146,7 @@ or you can override a paramater
       public_http_port  => '8080',
       public_https_port => '8443',
       ajp_port          => '8009',
-      users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
+      users_mgmt        => { 'wildfly' => { password => 'wildfly'}},
     }
 
 or with java_opts instead of java_xmx, java_xms, java_maxpermsize
@@ -146,64 +166,75 @@ or with java_opts instead of java_xmx, java_xms, java_maxpermsize
       public_http_port  => '8080',
       public_https_port => '8443',
       ajp_port          => '8009',
-      users_mgmt        => { 'wildfly' => { username => 'wildfly', password => 'wildfly'}},
+      users_mgmt        => { 'wildfly' => { password => 'wildfly'}},
     }
 
-## Deploy
+
+## Domain Mode
+
+### Domain Master
+
+    class { 'wildfly':
+      mode        => 'domain',
+      host_config => 'host-master.xml'
+    }
+
+    wildfly::config::mgmt_user { 'slave1':
+      password => 'wildfly',
+    }
+
+### Domain Slave
+
+    class { 'wildfly':
+        mode        => 'domain',
+        host_config => 'host-slave.xml',
+        domain_slave => {
+          host_name => 'slave1',
+          secret    => 'd2lsZGZseQ==', #base64(password)
+          domain_master_address => 'DomainBindAddress',
+        }
+    }
+
+## Deployment
 
 **From a source:**
 
-Source supports: http://, ftp://, file://
+Source supports: http:// and ftp://
 
-    wildfly::deploy { 'hawtio.war':
+    wildfly::deployment { 'hawtio.war':
      source   => 'http://central.maven.org/maven2/io/hawt/hawtio-web/1.4.48/hawtio-web-1.4.48.war',
-     checksum => '303e8fcb569a0c3d33b7c918801e5789621f6639' #sha1
     }
-    
-**From Nexus:**
 
-    wildfly::deploy { 'hawtio.war':
-      ensure     => present,
-      nexus_url  => 'https://oss.sonatype.org',
-      gav        => 'io.hawt:hawtio-web:1.4.36',
-      repository => 'releases',
-      packaging  => 'war',
-    }
-    
-**From Nexus to a server-group (domain mode):**
+**To a server-group (domain mode):**
 
-    wildfly::deploy { 'hawtio.war':
-      ensure       => present,
-      nexus_url    => 'https://oss.sonatype.org',
-      gav          => 'io.hawt:hawtio-web:1.4.36',
-      repository   => 'releases',
-      packaging    => 'war',
-      server_group => 'main-server-group',
+    wildfly::deployment { 'hawtio.war':
+     source       => 'http://central.maven.org/maven2/io/hawt/hawtio-web/1.4.48/hawtio-web-1.4.48.war',
+     server_group => 'main-server-group',
     }
+
+**Deploy from nexus: **
+
+This feature was removed to avoid 'archive' name collision, but you can still use archive::nexus to download an artifact and use as an input for wildfly::deploy
 
 ## User management
 
 You can add App and Management users (requires server restart).
 
-    wildfly::config::add_mgmt_user { 'Adding mgmtuser':
-      username => 'mgmtuser',
+    wildfly::config::mgmt_user { 'mgmtuser':
       password => 'mgmtuser'
     }
 
-    wildfly::config::add_app_user { 'Adding appuser':
-      username => 'appuser',
+    wildfly::config::app_user { 'appuser':
       password => 'appuser'
     }
 
 And associate groups or roles to them (requires server restart)
 
-    wildfly::config::associate_groups_to_user { 'Associate groups to mgmtuser':
-      username => 'mgmtuser',
+    wildfly::config::user_groups { 'mgmtuser':
       groups   => 'admin,mygroup'
     }
 
-    wildfly::config::associate_roles_to_user { 'Associate roles to app user':
-      username => 'appuser',
+    wildfly::config::user_roles { 'appuser':
       roles    => 'guest,ejb'
     }
 
@@ -238,7 +269,7 @@ Setup a driver and a datasource (for domain mode you need to set target_profile 
 
 Alternatively, you can install a JDBC driver and module using deploy if your driver is JDBC4 compliant:
 
-    wildfly::deploy { 'postgresql-9.3-1103-jdbc4.jar':
+    wildfly::deployment { 'postgresql-9.3-1103-jdbc4.jar':
       source => 'http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1103-jdbc4/postgresql-9.3-1103-jdbc4.jar'
     }
     ->
@@ -250,6 +281,13 @@ Alternatively, you can install a JDBC driver and module using deploy if your dri
         'user-name' => 'postgres',
         'password' => 'postgres'
       }
+    }
+
+Configure Database Property
+
+    wildfly::datasources::db_property { 'DemoDbProperty':
+     value => 'demovalue',
+     database => 'ExampleDS',
     }
 
 Datasource configuration uses a hash with elements that match JBoss-CLI datasource add elements name. More info here: https://docs.jboss.org/author/display/WFLY8/DataSource+configuration
@@ -283,7 +321,8 @@ Some configurations like SSL and modcluster requires a server reload, it can be 
       onlyif  => '(result == reload-required) of read-attribute server-state'
     }
 
-## Messaging (Only for full profiles) (for domain mode you need to set target_profile parameter)
+## Messaging (Only for full profiles)
+for domain mode you need to set target_profile parameter
 
     wildfly::messaging::queue { 'DemoQueue':
       durable => true,
@@ -295,14 +334,31 @@ Some configurations like SSL and modcluster requires a server reload, it can be 
       entries => ['java:/jms/topic/DemoTopic']
     }
 
-## Modcluster (Only for HA profiles) (for domain mode you need to set target_profile parameter)
+## Logging (Only for full profiles)
+for domain mode you need to set target_profile parameter
+
+    wildfly::logging::category { 'DemoCategory':
+      level => 'DEBUG',
+      use_parent_handlers => false,
+      handlers =>  ['DemoHandler']
+    }
+
+## System Property (Only for full profiles)
+for domain mode you need to set target_profile parameter
+
+    wildfly::system::property { 'DemoSysProperty':
+     value    => 'demovalue'
+    }
+
+## Modcluster (Only for HA profiles)
+for domain mode you need to set target_profile parameter
 
     wildfly::modcluster::config { "Modcluster mybalancer":
       balancer => 'mybalancer',
       load_balancing_group => 'demolb',
       proxy_url => '/',
       proxy_list => '127.0.0.1:6666'
-    } 
+    }
 
 ##Reference
 
@@ -321,14 +377,14 @@ Some configurations like SSL and modcluster requires a server reload, it can be 
 
 ###Resources
 
-* [wildfly::config::add_app_user]
-* [wildfly::config::add_mgmt_user]
-* [wildfly::config::associate_groups_to_user]
-* [wildfly::config::associate_roles_to_user]
+* [wildfly::config::app_user]
+* [wildfly::config::mgmt_user]
+* [wildfly::config::user_groups]
+* [wildfly::config::user_roles]
 * [wildfly::config::module]
 * [wildfly::util::resource]
 * [wildfly::util::exec_cli]
-* [wildfly::util::standalone::*]
+* [wildfly::deployment]
 
 Check types tab for more info about custom types/providers.
 
@@ -355,33 +411,36 @@ This module uses puppet-lint, rubocop, rspec, beaker and travis-ci. Try to use t
     bundle exec rspec spec/acceptance # default centos-66-x64
     BEAKER_set=centos-70-x64 bundle exec rspec spec/acceptance
     BEAKER_set=debian-78-x64 bundle exec rspec spec/acceptance
-    
-JBoss/Wildfly management is based on three custom types and you can do virtually any JBoss/Wildfly configuration using them. So, before build your awesome definition to manage a resource (anything in configurations XML's) or deploy an artifact from my_internal_protocol://, check wildfly::deploy or wildfly::datasources namespace for guidance. 
 
-    
+JBoss/Wildfly management is based on three custom types and you can do virtually any JBoss/Wildfly configuration using them. So, before build your awesome definition to manage a resource (anything in configurations XML's) or deploy an artifact from my_internal_protocol://, check wildfly::deploy or wildfly::datasources namespace for guidance.
+
+
 *Examples*:
 
-        wildfly_cli { 'Enable ExampleDS'
-          command => '/subsystem=datasources/data-source=ExampleDS:enable',
-          unless  => '(result == true) of /subsystem=datasources/data-source=ExampleDS:read-attribute(name=enabled)'
-        }
-    
-        wildfly_resource { '/subsystem=datasources/data-source=ExampleDS':
-          state => {
-                   'driver-name' => 'postgresql',
-                   'connection-url' => 'jdbc:postgresql://localhost/example',
-                   'jndi-name' => 'java:jboss/datasources/ExampleDS',
-                   'user-name' => 'postgres',
-                   'password' => 'postgres'
-                   }
-        }
-    
-        wildfly_deploy { 'sample.war':
-          source => 'file:/vagrant/sample.war'
-        }
-    
-    They all require a management username, password, host and port params, as it uses Wildfly HTTP API. *Host defaults to 127.0.0.1 and port to 9990*
+    wildfly_cli { 'Enable ExampleDS'
+      command => '/subsystem=datasources/data-source=ExampleDS:enable',
+      unless  => '(result == true) of /subsystem=datasources/data-source=ExampleDS:read-attribute(name=enabled)'
+    }
 
-##Contributors
+    wildfly_resource { '/subsystem=datasources/data-source=ExampleDS':
+      state => {
+               'driver-name' => 'postgresql',
+               'connection-url' => 'jdbc:postgresql://localhost/example',
+               'jndi-name' => 'java:jboss/datasources/ExampleDS',
+               'user-name' => 'postgres',
+               'password' => 'postgres'
+               }
+    }
 
-The list of contributors can be found at: https://github.com/biemond/biemond-wildfly/graphs/contributors 
+    wildfly_deployment { 'sample.war':
+      source => 'file:/vagrant/sample.war'
+    }
+
+They all require a management username, password, host and port params, as it uses Wildfly HTTP API. *Host defaults to 127.0.0.1 and port to 9990*
+
+##Author/Contributors
+
+- Edwin Biemond (biemond at gmail dot com)
+- Jairo Junior (junior.jairo1 at gmail dot com)
+
+More: https://github.com/biemond/biemond-wildfly/graphs/contributors

@@ -2,10 +2,12 @@
 # wildfly module class
 #
 class wildfly(
-  $version           = '8.2.0',
-  $install_source    = 'http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.tar.gz',
+  $version           = '9.0.2',
+  $install_source    = 'http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz',
   $java_home         = $wildfly::params::java_home,
   $manage_user       = $wildfly::params::manage_user,
+  $uid               = $wildfly::params::uid,
+  $gid               = $wildfly::params::gid,
   $group             = $wildfly::params::group,
   $user              = $wildfly::params::user,
   $dirname           = $wildfly::params::dirname,
@@ -29,17 +31,19 @@ class wildfly(
   $conf_file         = $wildfly::params::conf_file,
   $service_file      = $wildfly::params::service_file,
   $service_name      = $wildfly::params::service_name,
+  $service_ensure    = $wildfly::params::service_ensure,
+  $service_enable    = $wildfly::params::service_enable,
+  $domain_slave      = $wildfly::params::domain_slave,
+  $custom_init       = $wildfly::params::custom_init,
 ) inherits wildfly::params {
 
-  include archive
   include wildfly::install
   include wildfly::prepare
   include wildfly::setup
   include wildfly::service
 
-  Class['archive'] ->
-    Class['wildfly::prepare'] ->
-      Class['wildfly::install'] ->
-        Class['wildfly::setup'] ->
-          Class['wildfly::service']
+  Class['wildfly::prepare'] ->
+    Class['wildfly::install'] ->
+      Class['wildfly::setup'] ->
+        Class['wildfly::service']
 }

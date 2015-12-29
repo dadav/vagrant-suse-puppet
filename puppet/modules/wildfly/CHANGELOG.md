@@ -1,5 +1,33 @@
 # History
 
+## 0.5.1
+- Support datasource database properties
+- Support logging::category, only for full profiles
+- Support system property, only for full profiles
+- Be able to provide your own service wildfly initd script
+- Wildfy Service enable & ensure parameters
+- Fix module installation
+
+## 0.5.0
+- Removed nanliu-archive dependency
+- Removed nexus deployment support
+- Rename deploy to deployment
+- Simplify user management
+
+## 0.4.3
+- Allow setting the uid/gid for the wildfly user and group
+- Uses JBOSS_OPTS to configure socket binding and bind address. (Operation mode independent)
+- Improve Domain mode support. (Easy master/slave setup)
+- User management defined types name refactor. (Breaking change)
+- Non destructive update initial support.
+
+## 0.4.2
+- Adds timeout parameter for wildfly_deploy custom type.
+
+## 0.4.1
+- Template fixes so it also works for puppet 4.2.1
+- Standalone mode also works with an empty java_opts
+
 ## 0.4.0
 - Unified deploy for domain/standalone modes (wildfly::deploy)
 - Removed wildfly::standalone namespace since domain and standalone configurations share the same defitions

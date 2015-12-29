@@ -7,10 +7,13 @@ class wildfly::prepare {
 
     group { $wildfly::group :
       ensure => present,
+      gid    => $wildfly::gid,
     }
 
     user { $wildfly::user :
       ensure     => present,
+      uid        => $wildfly::uid,
+      gid        => $wildfly::gid,
       groups     => $wildfly::group,
       shell      => '/bin/bash',
       home       => "/home/${wildfly::user}",
@@ -34,10 +37,7 @@ class wildfly::prepare {
     default  => 'libaio',
   }
 
-  if !defined(Package[$libaiopackage]) {
-    package { $libaiopackage:
-      ensure => present,
-    }
-  }
+  ensure_resource('package', $libaiopackage, {'ensure' => 'present'})
+  ensure_resource('package', 'wget', {'ensure' => 'present'})
 
 }
