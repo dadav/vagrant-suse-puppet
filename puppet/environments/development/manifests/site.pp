@@ -223,7 +223,7 @@ class my_wildfly{
                           'password'                 => 'password',
                           'xa-datasource-class'      => 'org.postgresql.xa.PGXADataSource',
                           'xa-datasource-properties' => {
-                                'url' => {'url' => 'jdbc:postgresql://10.10.10.10/petshop'}
+                                'url' => {'value' => 'jdbc:postgresql://10.10.10.10/petshop'}
                           },
     }
   }
