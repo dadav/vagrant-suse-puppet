@@ -226,6 +226,12 @@ class my_wildfly{
                                 'url' => {'value' => 'jdbc:postgresql://10.10.10.10/petshop'}
                           },
     }
+  } ->
+
+
+  wildfly::datasources::db_property { 'test2':
+    value => 'bbbb',
+    database => 'petshopDS',
   }
 
 
