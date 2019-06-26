@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
+
+PUPPET_VERSION="5"
+SLES_VERSION="12"
+
 echo "Adding puppet repo"
-sudo rpm -ivh https://yum.puppetlabs.com/puppetlabs-release-pc1-fedora-21.noarch.rpm
+sudo rpm -ivh https://yum.puppetlabs.com/puppet${PUPPET_VERSION}/puppet5-release-sles-${SLES_VERSION}.noarch.rpm
+sudo zypper ref
 echo "installing puppet"
-sudo yum install puppet -y
+sudo zypper -n install puppet
