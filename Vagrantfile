@@ -5,7 +5,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box     = "suse/sles12sp2"
+  config.vm.box     = "opensuse/openSUSE-42.3-x86_64"
 
   config.vm.hostname = "dev.example.com"
   config.vm.network :private_network, ip: "10.10.10.10"
